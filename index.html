@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HavoK Cards Tracker 2025</title>
-    <!-- Firebase SDK -->
+    <!-- Firebase SDK compat (v10) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -28,7 +28,7 @@
         .owned { border: 5px solid #FFD700; box-shadow: 0 0 30px #FFD700; }
         .progress { text-align: center; font-size: 2.4em; margin: 40px 0; font-weight: bold; color: #FFD700; }
         footer { text-align: center; margin: 80px 0 20px; color: #666; }
-        .error { color: red; text-align: center; }
+        .error { color: red; text-align: center; margin: 10px 0; }
     </style>
 </head>
 <body>
@@ -91,7 +91,7 @@
     <footer>Made with love pour la communauté HavoK – Version Pro avec sync cloud</footer>
 
     <script>
-        // TA CONFIG FIREBASE (copiée de ta capture)
+        // TA CONFIG FIREBASE EXACTE (de ta capture)
         const firebaseConfig = {
           apiKey: "AIzaSyQbQLFvP6R8C3ehtcup75KHu1Mz8AhpS8",
           authDomain: "havok-card-tracker.firebaseapp.com",
@@ -107,17 +107,64 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        const cards = [ /* TA LISTE DE CARTES IDENTIQUE À AVANT, avec player et rarity */ 
-            // (je remets la même que la dernière fois pour pas tout réécrire, tu la connais)
+        // Liste des cartes (avec player/rarity pour filtres)
+        const cards = [
             {id: 1, name:"Rainbow", player:"Special", rarity:"Special", image:"images/rainbow.png"},
-            // ... tout le reste comme dans le code précédent
-            {id: 50, name:"Rainbow", player:"Special", rarity:"Special", image:"images/rainbow.png"}
+            {id: 2, name:"ZetFar Exotique", player:"ZetFar", rarity:"Exotique", image:"images/zetfar exotique.png"},
+            {id: 3, name:"WaZz Exotique", player:"WaZz", rarity:"Exotique", image:"images/wazz exotique.png"},
+            {id: 4, name:"ZetFar Mythique", player:"ZetFar", rarity:"Mythique", image:"images/zetfar mythique.png"},
+            {id: 5, name:"WaZz Mythique", player:"WaZz", rarity:"Mythique", image:"images/wazz mythique.png"},
+            {id: 6, name:"Pixx Mythique", player:"Pixx", rarity:"Mythique", image:"images/pixx mythique.png"},
+            {id: 7, name:"iDrop Mythique", player:"iDrop", rarity:"Mythique", image:"images/idrop mythique.png"},
+            {id: 8, name:"Tjino Mythique", player:"Tjino", rarity:"Mythique", image:"images/tjino mythique.png"},
+            {id: 9, name:"Pixie Mythique", player:"Pixie", rarity:"Mythique", image:"images/pixie mythique.png"},
+            {id:10, name:"Wox Mythique", player:"Wox", rarity:"Mythique", image:"images/wox mythique.png"},
+            {id:11, name:"ZetFar Legendaire", player:"ZetFar", rarity:"Legendaire", image:"images/zetfar legendaire.png"},
+            {id:12, name:"WaZz Legendaire", player:"WaZz", rarity:"Legendaire", image:"images/wazz legendaire.png"},
+            {id:13, name:"Seekk Legendaire", player:"Seek", rarity:"Legendaire", image:"images/seekk legendaire.png"},
+            {id:14, name:"Pixx Legendaire", player:"Pixx", rarity:"Legendaire", image:"images/pixx legendaire.png"},
+            {id:15, name:"iDrop Legendaire", player:"iDrop", rarity:"Legendaire", image:"images/idrop legendaire.png"},
+            {id:16, name:"Tjino Legendaire", player:"Tjino", rarity:"Legendaire", image:"images/tjino legendaire.png"},
+            {id:17, name:"Pixie Legendaire", player:"Pixie", rarity:"Legendaire", image:"images/pixie legendaire.png"},
+            {id:18, name:"Wox Legendaire", player:"Wox", rarity:"Legendaire", image:"images/wox legendaire.png"},
+            {id:19, name:"Seek Epic", player:"Seek", rarity:"Epic", image:"images/seekk epic.png"},
+            {id:20, name:"Pixx Epic", player:"Pixx", rarity:"Epic", image:"images/pixx epic.png"},
+            {id:21, name:"iDrop Epic", player:"iDrop", rarity:"Epic", image:"images/idrop epic.png"},
+            {id:22, name:"Tjino Epic", player:"Tjino", rarity:"Epic", image:"images/tjino epic.png"},
+            {id:23, name:"Pixie Epic", player:"Pixie", rarity:"Epic", image:"images/pixie epic.png"},
+            {id:24, name:"Wox Epic", player:"Wox", rarity:"Epic", image:"images/wox epic.png"},
+            {id:25, name:"Gio", player:"Staff", rarity:"Special", image:"images/gio.png"},
+            {id:26, name:"Slydizz", player:"Staff", rarity:"Special", image:"images/slydizz.png"},
+            {id:27, name:"Grimz", player:"Staff", rarity:"Special", image:"images/grimz.png"},
+            {id:28, name:"Sylkaos", player:"Staff", rarity:"Special", image:"images/sylkaos.png"},
+            {id:29, name:"Dizo", player:"Staff", rarity:"Special", image:"images/dizo.png"},
+            {id:30, name:"Paul", player:"Staff", rarity:"Special", image:"images/paul.png"},
+            {id:31, name:"Lars", player:"Staff", rarity:"Special", image:"images/lars.png"},
+            {id:32, name:"Pixx Bleu", player:"Pixx", rarity:"Bleu", image:"images/pixx bleu.png"},
+            {id:33, name:"iDrop Bleu", player:"iDrop", rarity:"Bleu", image:"images/idrop bleu.png"},
+            {id:34, name:"Tjino Bleu", player:"Tjino", rarity:"Bleu", image:"images/tjino bleu.png"},
+            {id:35, name:"Pixie Bleu", player:"Pixie", rarity:"Bleu", image:"images/pixie bleu.png"},
+            {id:36, name:"Wox Bleu", player:"Wox", rarity:"Bleu", image:"images/wox bleu.png"},
+            {id:37, name:"iDrop Vert", player:"iDrop", rarity:"Vert", image:"images/idrop vert.png"},
+            {id:38, name:"Tjino Vert", player:"Tjino", rarity:"Vert", image:"images/tjino vert.png"},
+            {id:39, name:"Pixie Vert", player:"Pixie", rarity:"Vert", image:"images/pixie vert.png"},
+            {id:40, name:"Wox Vert", player:"Wox", rarity:"Vert", image:"images/wox vert.png"},
+            {id:41, name:"Pixx Gris", player:"Pixx", rarity:"Gris", image:"images/pixx gris.png"},
+            {id:42, name:"iDrop Gris", player:"iDrop", rarity:"Gris", image:"images/idrop gris.png"},
+            {id:43, name:"Tjino Gris", player:"Tjino", rarity:"Gris", image:"images/tjino gris.png"},
+            {id:44, name:"Pixie Gris", player:"Pixie", rarity:"Gris", image:"images/pixie gris.png"},
+            {id:45, name:"Wox Gris", player:"Wox", rarity:"Gris", image:"images/wox gris.png"},
+            {id:46, name:"Chut", player:"Special", rarity:"Special", image:"images/chut.png"},
+            {id:47, name:"Dino", player:"Special", rarity:"Special", image:"images/dino.png"},
+            {id:48, name:"Leak", player:"Special", rarity:"Special", image:"images/leak.png"},
+            {id:49, name:"HavoK Logo", player:"Special", rarity:"Special", image:"images/havok.png"},
+            {id:50, name:"Rainbow", player:"Special", rarity:"Special", image:"images/rainbow.png"}
         ];
 
         let showMissingOnly = false;
         let currentUser = null;
 
-        // Auth listeners
+        // Auth state listener
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
@@ -136,6 +183,7 @@
                 document.getElementById('controls').style.display = 'none';
                 document.getElementById('cardsGrid').style.display = 'none';
             }
+            document.getElementById('authError').textContent = '';
         });
 
         window.signUp = () => {
@@ -154,9 +202,10 @@
 
         window.signOut = () => auth.signOut();
 
-        // Sauvegarde / chargement cloud
+        // Chargement/sauvegarde cloud
         function loadCollection() {
-            db.collection('users').doc(currentUser.uid).collection('collection').doc('cards')
+            if (!currentUser) return;
+            db.collection("users").doc(currentUser.uid).collection("collection").doc("cards")
                 .get()
                 .then(doc => {
                     const owned = doc.exists ? doc.data().owned || [] : [];
@@ -165,7 +214,8 @@
         }
 
         function saveCollection(owned) {
-            db.collection('users').doc(currentUser.uid).collection('collection').doc('cards')
+            if (!currentUser) return;
+            db.collection("users").doc(currentUser.uid).collection("collection").doc("cards")
                 .set({ owned });
         }
 
@@ -205,12 +255,14 @@
         }
 
         function toggleCard(id, checked, currentOwned) {
-            const owned = checked ? [...currentOwned, id] : currentOwned.filter(x => x !== id);
+            let owned = currentOwned.slice();
+            if (checked && !owned.includes(id)) owned.push(id);
+            if (!checked) owned = owned.filter(x => x !== id);
             saveCollection(owned);
             renderCards(owned);
         }
 
-        // Filtres et mode manquantes
+        // Filtres
         document.getElementById('missingBtn').onclick = function() {
             showMissingOnly = !showMissingOnly;
             this.classList.toggle('active');
