@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HavoK Cards Tracker 2025</title>
-    <!-- Firebase SDK compat (v10) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -58,7 +57,6 @@
 
     <div class="controls" id="controls" style="display:none;">
         <button id="missingBtn">Afficher seulement les manquantes</button>
-        
         <select id="rarityFilter">
             <option value="all">Toutes les raretés</option>
             <option value="Legendaire">Légendaire</option>
@@ -70,7 +68,6 @@
             <option value="Gris">Gris</option>
             <option value="Special">Spéciales / Staff</option>
         </select>
-
         <select id="playerFilter">
             <option value="all">Tous les joueurs</option>
             <option value="Pixie">Pixie</option>
@@ -91,23 +88,21 @@
     <footer>Made with love pour la communauté HavoK – Version Pro avec sync cloud</footer>
 
     <script>
-        // TA CONFIG FIREBASE EXACTE (de ta capture)
+        // TA CONFIG FIREBASE EXACTE
         const firebaseConfig = {
-          apiKey: "AIzaSyQbQLFvP6R8C3ehtcup75KHu1Mz8AhpS8",
+          apiKey: "AIzaSyCbQLfvP6R8C3ehtcup755KHuiMz8aNpS8",
           authDomain: "havok-card-tracker.firebaseapp.com",
           projectId: "havok-card-tracker",
-          storageBucket: "havok-card-tracker.appspot.com",
+          storageBucket: "havok-card-tracker.firebasestorage.app",
           messagingSenderId: "484519461554",
           appId: "1:484519461554:web:7a6c157f601a8d1f187fab",
-          measurementId: "G-TTZT7P45NQ"
+          measurementId: "G-TTZTP745NQ"
         };
 
-        // Initialisation Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        // Liste des cartes (avec player/rarity pour filtres)
         const cards = [
             {id: 1, name:"Rainbow", player:"Special", rarity:"Special", image:"images/rainbow.png"},
             {id: 2, name:"ZetFar Exotique", player:"ZetFar", rarity:"Exotique", image:"images/zetfar exotique.png"},
@@ -164,7 +159,6 @@
         let showMissingOnly = false;
         let currentUser = null;
 
-        // Auth state listener
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
@@ -189,6 +183,10 @@
         window.signUp = () => {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+            if (password.length < 6) {
+                document.getElementById('authError').textContent = 'Mot de passe trop court (6+ caractères)';
+                return;
+            }
             auth.createUserWithEmailAndPassword(email, password)
                 .catch(err => document.getElementById('authError').textContent = err.message);
         };
@@ -202,7 +200,6 @@
 
         window.signOut = () => auth.signOut();
 
-        // Chargement/sauvegarde cloud
         function loadCollection() {
             if (!currentUser) return;
             db.collection("users").doc(currentUser.uid).collection("collection").doc("cards")
@@ -210,13 +207,15 @@
                 .then(doc => {
                     const owned = doc.exists ? doc.data().owned || [] : [];
                     renderCards(owned);
-                });
+                })
+                .catch(err => console.error(err));
         }
 
         function saveCollection(owned) {
             if (!currentUser) return;
             db.collection("users").doc(currentUser.uid).collection("collection").doc("cards")
-                .set({ owned });
+                .set({ owned })
+                .catch(err => console.error(err));
         }
 
         function updateProgress(owned) {
@@ -262,7 +261,6 @@
             renderCards(owned);
         }
 
-        // Filtres
         document.getElementById('missingBtn').onclick = function() {
             showMissingOnly = !showMissingOnly;
             this.classList.toggle('active');
