@@ -3,28 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HavoK Cards Tracker 2025</title>
-    <!-- Import Bebas Neue depuis Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <title>HavoK Cartes Tracker 2025</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        body { 
-            font-family: 'Bebas Neue', Arial, sans-serif; 
-            background: #0a0a0a; 
-            color: #fff; 
-            margin: 0; 
-            padding: 20px; 
-        }
+        /* Ton style inchangé */
+        body { font-family: Arial, sans-serif; background: #0a0a0a; color: #fff; margin: 0; padding: 20px; }
         header { background: linear-gradient(135deg, #FFD700, #FFF); color: #000; padding: 30px; text-align: center; border-radius: 15px; margin-bottom: 30px; }
-        h1 { 
-            margin: 0; 
-            font-size: 3em; 
-            font-family: 'Bebas Neue', 'Impact', sans-serif;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
+        h1 { margin: 0; font-size: 3em; }
         .login, .logout-box { max-width: 420px; margin: 20px auto; background: #1a1a1a; padding: 25px; border-radius: 12px; text-align: center; }
         input, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 8px; font-size: 1.1em; }
         button { background: #FFD700; color: #000; border: none; cursor: pointer; font-weight: bold; }
@@ -73,8 +60,8 @@
         <button id="missingBtn">Afficher seulement les manquantes</button>
         <select id="rarityFilter">
             <option value="all">Toutes les raretés</option>
-            <option value="Legendaire">Légendaire</option>
             <option value="Mythique">Mythique</option>
+            <option value="Legendaire">Légendaire</option>
             <option value="Exotique">Exotique</option>
             <option value="Epic">Épic</option>
             <option value="Bleu">Bleu</option>
@@ -91,7 +78,7 @@
             <option value="Pixx">Pixx</option>
             <option value="WaZz">WaZz</option>
             <option value="ZetFar">ZetFar</option>
-            <option value="Seek">Seek</option>
+            <option value="Seekk">Seekk</option>
             <option value="Staff">Staff</option>
             <option value="Special">Spéciales</option>
         </select>
@@ -99,14 +86,198 @@
 
     <div class="cards-grid" id="cardsGrid"></div>
 
-    <footer>Fait par Zaq pour la communauté HavoK</footer>
+    <footer>Made with love pour la communauté HavoK – Version Pro avec sync cloud</footer>
 
     <script>
-        // Le script Firebase et tout le reste reste identique à la dernière version qui marchait pour la connexion
-        // (je ne le répète pas pour pas alourdir, mais c’est le même que le précédent message avec currentOwned et renderCards corrigé)
+        // TA CONFIG FIREBASE
+        const firebaseConfig = {
+          apiKey: "AIzaSyCbQLfvP6R8C3ehtcup755KHuiMz8aNpS8",
+          authDomain: "havok-card-tracker.firebaseapp.com",
+          projectId: "havok-card-tracker",
+          storageBucket: "havok-card-tracker.firebasestorage.app",
+          messagingSenderId: "484519461554",
+          appId: "1:484519461554:web:7a6c157f601a8d1f187fab",
+          measurementId: "G-TTZTP745NQ"
+        };
 
-        // Si tu veux le script complet, dis-moi, mais avec ce style, le site va avoir une police de malade !
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
+        const cards = [
+            {id: 1, name:"Rainbow", player:"Special", rarity:"Special", image:"images/rainbow.png"},
+            {id: 2, name:"ZetFar Exotique", player:"ZetFar", rarity:"Exotique", image:"images/zetfar exotique.png"},
+            {id: 3, name:"WaZz Exotique", player:"WaZz", rarity:"Exotique", image:"images/wazz exotique.png"},
+            {id: 4, name:"ZetFar Mythique", player:"ZetFar", rarity:"Mythique", image:"images/zetfar mythique.png"},
+            {id: 5, name:"WaZz Mythique", player:"WaZz", rarity:"Mythique", image:"images/wazz mythique.png"},
+            {id: 6, name:"Pixx Mythique", player:"Pixx", rarity:"Mythique", image:"images/pixx mythique.png"},
+            {id: 7, name:"iDrop Mythique", player:"iDrop", rarity:"Mythique", image:"images/idrop mythique.png"},
+            {id: 8, name:"Tjino Mythique", player:"Tjino", rarity:"Mythique", image:"images/tjino mythique.png"},
+            {id: 9, name:"Pixie Mythique", player:"Pixie", rarity:"Mythique", image:"images/pixie mythique.png"},
+            {id:10, name:"Wox Mythique", player:"Wox", rarity:"Mythique", image:"images/wox mythique.png"},
+            {id:11, name:"ZetFar Legendaire", player:"ZetFar", rarity:"Legendaire", image:"images/zetfar legendaire.png"},
+            {id:12, name:"WaZz Legendaire", player:"WaZz", rarity:"Legendaire", image:"images/wazz legendaire.png"},
+            {id:13, name:"Seekk Legendaire", player:"Seekk", rarity:"Legendaire", image:"images/seekk legendaire.png"},
+            {id:14, name:"Pixx Legendaire", player:"Pixx", rarity:"Legendaire", image:"images/pixx legendaire.png"},
+            {id:15, name:"iDrop Legendaire", player:"iDrop", rarity:"Legendaire", image:"images/idrop legendaire.png"},
+            {id:16, name:"Tjino Legendaire", player:"Tjino", rarity:"Legendaire", image:"images/tjino legendaire.png"},
+            {id:17, name:"Pixie Legendaire", player:"Pixie", rarity:"Legendaire", image:"images/pixie legendaire.png"},
+            {id:18, name:"Wox Legendaire", player:"Wox", rarity:"Legendaire", image:"images/wox legendaire.png"},
+            {id:19, name:"Seekk Epic", player:"Seekk", rarity:"Epic", image:"images/seekk epic.png"},
+            {id:20, name:"Pixx Epic", player:"Pixx", rarity:"Epic", image:"images/pixx epic.png"},
+            {id:21, name:"iDrop Epic", player:"iDrop", rarity:"Epic", image:"images/idrop epic.png"},
+            {id:22, name:"Tjino Epic", player:"Tjino", rarity:"Epic", image:"images/tjino epic.png"},
+            {id:23, name:"Pixie Epic", player:"Pixie", rarity:"Epic", image:"images/pixie epic.png"},
+            {id:24, name:"Wox Epic", player:"Wox", rarity:"Epic", image:"images/wox epic.png"},
+            {id:25, name:"Gio", player:"Staff", rarity:"Special", image:"images/gio.png"},
+            {id:26, name:"Slydizz", player:"Staff", rarity:"Special", image:"images/slydizz.png"},
+            {id:27, name:"Grimz", player:"Staff", rarity:"Special", image:"images/grimz.png"},
+            {id:28, name:"Sylkaos", player:"Staff", rarity:"Special", image:"images/sylkaos.png"},
+            {id:29, name:"Dizo", player:"Staff", rarity:"Special", image:"images/dizo.png"},
+            {id:30, name:"Paul", player:"Staff", rarity:"Special", image:"images/paul.png"},
+            {id:31, name:"Lars", player:"Staff", rarity:"Special", image:"images/lars.png"},
+            {id:32, name:"Pixx Bleu", player:"Pixx", rarity:"Bleu", image:"images/pixx bleu.png"},
+            {id:33, name:"iDrop Bleu", player:"iDrop", rarity:"Bleu", image:"images/idrop bleu.png"},
+            {id:34, name:"Tjino Bleu", player:"Tjino", rarity:"Bleu", image:"images/tjino bleu.png"},
+            {id:35, name:"Pixie Bleu", player:"Pixie", rarity:"Bleu", image:"images/pixie bleu.png"},
+            {id:36, name:"Wox Bleu", player:"Wox", rarity:"Bleu", image:"images/wox bleu.png"},
+            {id:50, name:"Pixx Vert", player:"Pixx", rarity:"Vert", image:"images/pixx vert.png"},
+            {id:37, name:"iDrop Vert", player:"iDrop", rarity:"Vert", image:"images/idrop vert.png"},
+            {id:38, name:"Tjino Vert", player:"Tjino", rarity:"Vert", image:"images/tjino vert.png"},
+            {id:39, name:"Pixie Vert", player:"Pixie", rarity:"Vert", image:"images/pixie vert.png"},
+            {id:40, name:"Wox Vert", player:"Wox", rarity:"Vert", image:"images/wox vert.png"},
+            {id:41, name:"Pixx Gris", player:"Pixx", rarity:"Gris", image:"images/pixx gris.png"},
+            {id:42, name:"iDrop Gris", player:"iDrop", rarity:"Gris", image:"images/idrop gris.png"},
+            {id:43, name:"Tjino Gris", player:"Tjino", rarity:"Gris", image:"images/tjino gris.png"},
+            {id:44, name:"Pixie Gris", player:"Pixie", rarity:"Gris", image:"images/pixie gris.png"},
+            {id:45, name:"Wox Gris", player:"Wox", rarity:"Gris", image:"images/wox gris.png"},
+            {id:46, name:"Chut", player:"Special", rarity:"Special", image:"images/chut.png"},
+            {id:47, name:"Dino", player:"Special", rarity:"Special", image:"images/dino.png"},
+            {id:48, name:"Leak", player:"Special", rarity:"Special", image:"images/leak.png"},
+            {id:49, name:"HavoK Logo", player:"Special", rarity:"Special", image:"images/havok.png"},
+            
+        ];
+
+        let showMissingOnly = false;
+        let currentUser = null;
+        let currentOwned = [];
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('logoutBox').style.display = 'block';
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('progress').style.display = 'block';
+                document.getElementById('controls').style.display = 'block';
+                document.getElementById('cardsGrid').style.display = 'grid';
+                loadCollection();
+            } else {
+                currentUser = null;
+                currentOwned = [];
+                document.getElementById('loginScreen').style.display = 'block';
+                document.getElementById('logoutBox').style.display = 'none';
+                document.getElementById('progress').style.display = 'none';
+                document.getElementById('controls').style.display = 'none';
+                document.getElementById('cardsGrid').style.display = 'none';
+            }
+            document.getElementById('authError').textContent = '';
+        });
+
+        window.signUp = () => {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            if (password.length < 6) {
+                document.getElementById('authError').textContent = 'Mot de passe trop court (6+ caractères)';
+                return;
+            }
+            auth.createUserWithEmailAndPassword(email, password)
+                .catch(err => document.getElementById('authError').textContent = err.message);
+        };
+
+        window.signIn = () => {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(err => document.getElementById('authError').textContent = err.message);
+        };
+
+        window.signOut = () => auth.signOut();
+
+        function loadCollection() {
+            if (!currentUser) return;
+            db.collection("users").doc(currentUser.uid).collection("collection").doc("cards")
+                .get()
+                .then(doc => {
+                    currentOwned = doc.exists ? doc.data().owned || [] : [];
+                    renderCards();
+                })
+                .catch(err => console.error("Erreur load:", err));
+        }
+
+        function saveCollection() {
+            if (!currentUser) return;
+            db.collection("users").doc(currentUser.uid).collection("collection").doc("cards")
+                .set({ owned: currentOwned })
+                .catch(err => console.error("Erreur save:", err));
+        }
+
+        function updateProgress() {
+            const count = currentOwned.length;
+            const percent = Math.round((count / cards.length) * 100);
+            document.getElementById('ownedCount').textContent = count;
+            document.getElementById('percent').textContent = percent;
+        }
+
+        function renderCards() {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+            const rarity = document.getElementById('rarityFilter').value;
+            const player = document.getElementById('playerFilter').value;
+
+            cards.forEach(card => {
+                const matchesRarity = rarity === 'all' || card.rarity === rarity;
+                const matchesPlayer = player === 'all' || card.player === player;
+                const isOwned = currentOwned.includes(card.id);
+                const shouldShowMissing = !showMissingOnly || !isOwned;
+
+                if (matchesRarity && matchesPlayer && shouldShowMissing) {
+                    const div = document.createElement('div');
+                    div.className = 'card' + (isOwned ? ' owned' : '');
+                    div.innerHTML = `
+                        <img src="${card.image}" alt="${card.name}">
+                        <label>
+                            ${card.name}
+                            <input type="checkbox" ${isOwned ? 'checked' : ''} onchange="toggleCard(${card.id}, this.checked)">
+                        </label>
+                    `;
+                    grid.appendChild(div);
+                }
+            });
+            updateProgress();
+        }
+
+        function toggleCard(id, checked) {
+            if (checked) {
+                if (!currentOwned.includes(id)) currentOwned.push(id);
+            } else {
+                currentOwned = currentOwned.filter(x => x !== id);
+            }
+            saveCollection();
+            renderCards(); // Rafraîchit le compteur et les bordures
+        }
+
+        document.getElementById('missingBtn').onclick = function() {
+            showMissingOnly = !showMissingOnly;
+            this.classList.toggle('active');
+            this.textContent = showMissingOnly ? 'Afficher toutes les cartes' : 'Afficher seulement les manquantes';
+            renderCards(); // Utilise currentOwned pour rafraîchir
+        };
+
+        document.getElementById('rarityFilter').onchange = renderCards;
+        document.getElementById('playerFilter').onchange = renderCards;
     </script>
 </body>
 </html>
+
+
